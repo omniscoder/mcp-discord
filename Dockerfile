@@ -27,14 +27,14 @@ FROM python:3.12-slim-bookworm
 
 WORKDIR /app
 
-COPY --from=uv /root/.local /root/.local
+RUN useradd --create-home --uid 10001 app
 COPY --from=uv --chown=app:app /app/.venv /app/.venv
 
 # Place executables in the environment at the front of the path
 ENV PATH="/app/.venv/bin:$PATH"
 
-# Set the environment variable for the Discord bot token
-ENV DISCORD_TOKEN=your_bot_token
+ENV PYTHONUNBUFFERED=1
 
-# when running the container, add --db-path and a bind mount to the host's db file
+USER app
+
 ENTRYPOINT ["mcp-discord"]

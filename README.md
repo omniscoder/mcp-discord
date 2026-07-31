@@ -37,28 +37,23 @@ A Model Context Protocol (MCP) server that provides Discord integration capabili
    - Create a bot and copy the token
    - Enable required privileged intents:
      - MESSAGE CONTENT INTENT
-     - PRESENCE INTENT
      - SERVER MEMBERS INTENT
    - Invite the bot to your server using OAuth2 URL Generator
 
 2. Clone and install the package:
 ```bash
 # Clone the repository
-git clone https://github.com/hanweg/mcp-discord.git
+git clone https://github.com/omniscoder/mcp-discord.git
 cd mcp-discord
 
-# Create and activate virtual environment
-uv venv
-.venv\Scripts\activate # On macOS/Linux, use: source .venv/bin/activate
-
-### If using Python 3.13+ - install audioop library: `uv pip install audioop-lts`
-
-# Install the package
-uv pip install -e .
+# Install the locked application and development dependencies
+uv sync --frozen
 ```
 
 3. Configure Claude Desktop (`%APPDATA%\Claude\claude_desktop_config.json` on Windows, `~/Library/Application Support/Claude/claude_desktop_config.json` on macOS):
 ```json
+{
+  "mcpServers": {
     "discord": {
       "command": "uv",
       "args": [
@@ -68,9 +63,36 @@ uv pip install -e .
         "mcp-discord"
       ],
       "env": {
-        "DISCORD_TOKEN": "your_bot_token"
+        "DISCORD_TOKEN": "your_bot_token",
+        "DISCORD_ALLOWED_GUILD_IDS": "123456789012345678"
       }
     }
+  }
+}
+```
+
+## Safety configuration
+
+The bot can read and write Discord data using its configured Discord permissions. Restrict those
+permissions to the minimum needed and use `DISCORD_ALLOWED_GUILD_IDS` to limit the MCP server to a
+comma-separated list of server IDs. If the variable is omitted, every server available to the bot is
+accessible.
+
+Administrative tools (`add_role`, `remove_role`, `create_text_channel`, `delete_channel`, and
+`moderate_message`) are hidden and rejected by default. Set `DISCORD_ENABLE_ADMIN_TOOLS=true` only
+when those operations are intentionally required. Outgoing messages suppress all user, role, and
+`@everyone` mentions by default.
+
+Optional configuration:
+
+- `DISCORD_READY_TIMEOUT_SECONDS`: seconds to wait for Discord login, default `30`.
+- `DISCORD_ALLOWED_GUILD_IDS`: comma-separated server IDs.
+- `DISCORD_ENABLE_ADMIN_TOOLS`: set to `true` to expose administrative tools.
+
+For Docker, pass the token at runtime rather than storing it in the image:
+
+```bash
+docker run --rm -i -e DISCORD_TOKEN -e DISCORD_ALLOWED_GUILD_IDS mcp-discord
 ```
 
 ### Installing via Smithery
