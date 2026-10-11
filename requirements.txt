@@ -1,2 +1,4 @@
-discord.py>=2.3.0
-mcp>=0.1.0
+# Install the locked application environment with `uv sync --frozen`.
+# This file is retained for pip-based deployments.
+discord.py>=2.7,<3
+mcp>=1.27,<2
