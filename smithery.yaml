@@ -11,7 +11,22 @@ startCommand:
       discordToken:
         type: string
         description: The bot token for Discord integration.
+      allowedGuildIds:
+        type: string
+        description: Optional comma-separated list of Discord server IDs.
+      enableAdminTools:
+        type: boolean
+        default: false
+        description: Expose role, channel, and moderation tools.
   commandFunction:
     # A function that produces the CLI command to start the MCP on stdio.
     |-
-    config => ({command: 'uv', args: ['run', 'mcp-discord'], env: {DISCORD_TOKEN: config.discordToken}})
+    config => ({
+      command: 'uv',
+      args: ['run', 'mcp-discord'],
+      env: {
+        DISCORD_TOKEN: config.discordToken,
+        DISCORD_ENABLE_ADMIN_TOOLS: String(config.enableAdminTools ?? false),
+        ...(config.allowedGuildIds ? {DISCORD_ALLOWED_GUILD_IDS: config.allowedGuildIds} : {})
+      }
+    })
